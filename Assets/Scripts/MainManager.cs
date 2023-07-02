@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -11,10 +12,12 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text Name;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+    private int highscore;
     
     private bool m_GameOver = false;
 
@@ -22,6 +25,7 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ApplyName();
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -68,9 +72,41 @@ public class MainManager : MonoBehaviour
         ScoreText.text = $"Score : {m_Points}";
     }
 
+    void ApplyName()
+    {
+        Name.text = "Name: " + PersistanceManager.Instance.PlayerName;
+    }
+
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    [System.Serializable]
+    public class SaveFile
+    {
+        public string name;
+        public int score;
+    }
+
+    public void LoadHighscoreInfo()
+    {
+
+    }
+
+    public void DisplayHighScoreAndName()
+    {
+        if(m_Points < highscore)
+        {
+            SaveFile HscoreName = new SaveFile();
+
+            HscoreName.name = PersistanceManager.Instance.PlayerName;
+            HscoreName.score = m_Points;
+
+            string writable = JsonUtility.ToJson(HscoreName);
+
+            File.WriteAllText(Application.persistentDataPath + "/savesjson.json",writable);
+        }
     }
 }
