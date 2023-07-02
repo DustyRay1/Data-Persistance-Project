@@ -10,7 +10,7 @@ public class MainManager : MonoBehaviour
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
-
+    public Text RecordHolder;
     public Text ScoreText;
     public Text Name;
     public GameObject GameOverText;
@@ -44,6 +44,8 @@ public class MainManager : MonoBehaviour
 
     private void Update()
     {
+        LoadHighscoreInfo();
+        DisplayHighScoreAndName();
         if (!m_Started)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -92,16 +94,23 @@ public class MainManager : MonoBehaviour
 
     public void LoadHighscoreInfo()
     {
+        string filename = Application.persistentDataPath + "/savesjson.json";
+        if(File.Exists(filename))
+        {
+            SaveFile HscoreName = JsonUtility.FromJson<SaveFile>(File.ReadAllText(Application.persistentDataPath + "/savesjson.json"));
+            RecordHolder.text = "(Best Score) " + HscoreName.name +", Score: "+ HscoreName.score;
+            highscore = HscoreName.score;
+        }
 
     }
 
     public void DisplayHighScoreAndName()
     {
-        if(m_Points < highscore)
+        if(m_Points > highscore)
         {
             SaveFile HscoreName = new SaveFile();
 
-            HscoreName.name = PersistanceManager.Instance.PlayerName;
+            HscoreName.name = Name.text;
             HscoreName.score = m_Points;
 
             string writable = JsonUtility.ToJson(HscoreName);
